@@ -7,4 +7,4 @@ function Appointment() {
   );
 }
 
-export default Appointment;  // ← ADD THIS LINE!
+export default Appointment; 
