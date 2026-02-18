@@ -2,6 +2,128 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
+// ── ADDED: AddPatientModal component ─────────────────────────────────────────
+function AddPatientModal({ onClose, onSave }) {
+  const [form, setForm] = useState({
+    firstName: '', lastName: '', dob: '', gender: '',
+    email: '', phone: '', address: '', bloodType: '',
+    emergencyContact: '', notes: '',
+  });
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+
+  const validate = () => {
+    const e = {};
+    if (!form.firstName.trim()) e.firstName = 'First name is required.';
+    if (!form.lastName.trim())  e.lastName  = 'Last name is required.';
+    if (!form.dob)              e.dob       = 'Date of birth is required.';
+    if (!form.gender)           e.gender    = 'Gender is required.';
+    if (!form.phone.trim())     e.phone     = 'Phone number is required.';
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      e.email = 'Enter a valid email.';
+    return e;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }));
+  };
+
+  const handleSubmit = async () => {
+    const e = validate();
+    if (Object.keys(e).length) { setErrors(e); return; }
+    setSubmitting(true);
+    await new Promise(r => setTimeout(r, 800)); // replace with real API call
+    onSave?.(form);
+    setSubmitting(false);
+    onClose();
+  };
+
+  const fieldClass = (name) =>
+    `w-full border ${errors[name] ? 'border-red-400 bg-red-50' : 'border-gray-200'} rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500`;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h2 className="text-xl font-bold text-gray-900">Add New Patient</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Fields */}
+        <div className="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[
+            { label: 'First Name *', name: 'firstName', placeholder: 'John' },
+            { label: 'Last Name *',  name: 'lastName',  placeholder: 'Doe' },
+            { label: 'Phone *',      name: 'phone',     placeholder: '+1 (555) 000-0000' },
+            { label: 'Email',        name: 'email',     placeholder: 'john@example.com', type: 'email' },
+            { label: 'Address',      name: 'address',   placeholder: '123 Main St' },
+            { label: 'Emergency Contact', name: 'emergencyContact', placeholder: 'Name — phone' },
+          ].map(({ label, name, placeholder, type = 'text' }) => (
+            <div key={name}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+              <input type={type} name={name} value={form[name]} onChange={handleChange}
+                placeholder={placeholder} className={fieldClass(name)} />
+              {errors[name] && <p className="mt-1 text-xs text-red-500">{errors[name]}</p>}
+            </div>
+          ))}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth *</label>
+            <input type="date" name="dob" value={form.dob} onChange={handleChange} className={fieldClass('dob')} />
+            {errors.dob && <p className="mt-1 text-xs text-red-500">{errors.dob}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Gender *</label>
+            <select name="gender" value={form.gender} onChange={handleChange} className={fieldClass('gender')}>
+              <option value="">Select gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="non-binary">Non-binary</option>
+              <option value="prefer-not">Prefer not to say</option>
+            </select>
+            {errors.gender && <p className="mt-1 text-xs text-red-500">{errors.gender}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Blood Type</label>
+            <select name="bloodType" value={form.bloodType} onChange={handleChange} className={fieldClass('bloodType')}>
+              <option value="">Unknown</option>
+              {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <textarea name="notes" value={form.notes} onChange={handleChange} rows={3}
+              placeholder="Allergies, pre-existing conditions…"
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
+          <button onClick={onClose} className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+            Cancel
+          </button>
+          <button onClick={handleSubmit} disabled={submitting}
+            className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-60 transition">
+            {submitting ? 'Saving…' : 'Save Patient'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -15,6 +137,14 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* ADDED: render modal when state is true */}
+      {showAddPatientModal && (
+        <AddPatientModal
+          onClose={() => setShowPatientModal(false)}
+          onSave={(data) => console.log('New patient:', data)} // replace with your API call
+        />
+      )}
+
       {/* Header */}
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
