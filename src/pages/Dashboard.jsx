@@ -182,7 +182,7 @@ function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100 text-sm font-semibold">Total Patients</p>
-                <p className="text-4xl font-bold mt-2">150</p>
+                <p className="text-4xl font-bold mt-2">30</p>
                 <p className="text-blue-100 text-sm mt-2">↑ 12% from last month</p>
               </div>
               <div className="bg-blue-400 bg-opacity-30 rounded-full p-4">
