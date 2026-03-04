@@ -1,6 +1,9 @@
 function Patient(){
     return(
-        <div className = "">
+        <div className = "p-8">
+            <h1 className = ""></h1>
+            
+        </div>
     )
 
 }
