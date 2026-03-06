@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function AddPatientModal({ onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -15,6 +15,11 @@ function AddPatientModal({ onClose, onSave }) {
   });
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    requestAnimationFrame(() => setVisible(true));
+  }, []);
 
   const validate = () => {
     const newErrors = {};
@@ -37,6 +42,11 @@ function AddPatientModal({ onClose, onSave }) {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
+  const handleClose = () => {
+    setVisible(false);
+    setTimeout(onClose, 200);
+  };
+
   const handleSubmit = async () => {
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -44,17 +54,16 @@ function AddPatientModal({ onClose, onSave }) {
       return;
     }
     setSaving(true);
-    // Simulate async save (replace with your real API call)
     await new Promise((r) => setTimeout(r, 800));
     onSave(formData);
     setSaving(false);
-    onClose();
+    handleClose();
   };
 
   const Field = ({ label, name, type = 'text', placeholder, required }) => (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
+    <div className="apm-field-group">
+      <label className="apm-label">
+        {label}{required && <span className="apm-required"> *</span>}
       </label>
       <input
         type={type}
@@ -62,131 +71,330 @@ function AddPatientModal({ onClose, onSave }) {
         value={formData[name]}
         onChange={handleChange}
         placeholder={placeholder}
-        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
-          errors[name] ? 'border-red-400 bg-red-50' : 'border-gray-300'
-        }`}
+        className={`apm-input${errors[name] ? ' apm-input-error' : ''}`}
       />
-      {errors[name] && <p className="text-red-500 text-xs mt-1">{errors[name]}</p>}
+      {errors[name] && <p className="apm-error-msg">⚠ {errors[name]}</p>}
     </div>
   );
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)' }}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
+
+        .apm-overlay {
+          font-family: 'DM Sans', sans-serif;
+          position: fixed;
+          inset: 0;
+          z-index: 50;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+          background: rgba(8, 15, 30, 0.55);
+          backdrop-filter: blur(6px);
+          transition: opacity 0.2s ease;
+          opacity: 0;
+        }
+        .apm-overlay.apm-visible { opacity: 1; }
+
+        .apm-card {
+          background: #ffffff;
+          border-radius: 20px;
+          width: 100%;
+          max-width: 540px;
+          max-height: 90vh;
+          overflow-y: auto;
+          box-shadow: 0 32px 80px rgba(10, 25, 60, 0.18), 0 0 0 1px rgba(180,200,240,0.25);
+          transform: translateY(18px) scale(0.98);
+          transition: transform 0.25s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.2s ease;
+          opacity: 0;
+        }
+        .apm-card.apm-visible {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+
+        /* Header */
+        .apm-header {
+          background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+          padding: 28px 32px 24px;
+          position: relative;
+          overflow: hidden;
+          border-radius: 20px 20px 0 0;
+        }
+        .apm-header::before {
+          content: '';
+          position: absolute;
+          top: -40px; right: -40px;
+          width: 180px; height: 180px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.04);
+          pointer-events: none;
+        }
+        .apm-header::after {
+          content: '';
+          position: absolute;
+          bottom: -60px; left: 30%;
+          width: 220px; height: 220px;
+          border-radius: 50%;
+          background: rgba(99,179,237,0.07);
+          pointer-events: none;
+        }
+        .apm-header-eyebrow {
+          font-size: 11px;
+          letter-spacing: 2.5px;
+          text-transform: uppercase;
+          color: rgba(147,197,253,0.8);
+          font-weight: 500;
+          margin-bottom: 6px;
+        }
+        .apm-header-title {
+          font-family: 'DM Serif Display', serif;
+          font-size: 26px;
+          color: #ffffff;
+          line-height: 1.2;
+        }
+        .apm-header-sub {
+          font-size: 13px;
+          color: rgba(191, 219, 254, 0.7);
+          margin-top: 4px;
+        }
+        .apm-close-btn {
+          position: absolute;
+          top: 20px; right: 20px;
+          width: 34px; height: 34px;
+          border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.15);
+          background: rgba(255,255,255,0.07);
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer;
+          color: rgba(255,255,255,0.7);
+          transition: all 0.15s ease;
+        }
+        .apm-close-btn:hover {
+          background: rgba(255,255,255,0.15);
+          color: #fff;
+        }
+
+        /* Body */
+        .apm-body { padding: 28px 32px 8px; }
+
+        .apm-section-title {
+          font-size: 11px;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          color: #94a3b8;
+          font-weight: 600;
+          margin-bottom: 14px;
+        }
+        .apm-divider {
+          height: 1px;
+          background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+          margin: 6px 0 22px;
+        }
+        .apm-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .apm-grid-1 { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+
+        .apm-field-group { display: flex; flex-direction: column; gap: 6px; }
+        .apm-label {
+          font-size: 11.5px;
+          font-weight: 600;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          color: #64748b;
+        }
+        .apm-required { color: #f43f5e; }
+
+        .apm-input, .apm-select, .apm-textarea {
+          padding: 10px 14px;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 10px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          color: #1e293b;
+          background: #f8fafc;
+          transition: all 0.15s ease;
+          outline: none;
+          width: 100%;
+          box-sizing: border-box;
+          appearance: none;
+          -webkit-appearance: none;
+        }
+        .apm-input:focus, .apm-select:focus, .apm-textarea:focus {
+          border-color: #3b82f6;
+          background: #fff;
+          box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+        .apm-input-error, .apm-select-error {
+          border-color: #f43f5e !important;
+          background: #fff5f7 !important;
+        }
+        .apm-input-error:focus, .apm-select-error:focus {
+          box-shadow: 0 0 0 3px rgba(244,63,94,0.1) !important;
+        }
+        .apm-error-msg {
+          font-size: 11.5px;
+          color: #f43f5e;
+          font-weight: 500;
+          margin: 0;
+        }
+        .apm-textarea {
+          resize: none;
+          min-height: 80px;
+        }
+
+        /* Footer */
+        .apm-footer {
+          display: flex;
+          gap: 12px;
+          justify-content: flex-end;
+          padding: 16px 32px 28px;
+        }
+        .apm-btn {
+          padding: 11px 24px;
+          border-radius: 10px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          border: none;
+          transition: all 0.15s ease;
+          display: flex; align-items: center; gap: 8px;
+        }
+        .apm-btn-ghost {
+          background: #f1f5f9;
+          color: #64748b;
+        }
+        .apm-btn-ghost:hover { background: #e2e8f0; color: #475569; }
+        .apm-btn-primary {
+          background: linear-gradient(135deg, #2563eb, #1d4ed8);
+          color: white;
+          min-width: 148px;
+          justify-content: center;
+          box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+        }
+        .apm-btn-primary:hover {
+          background: linear-gradient(135deg, #1d4ed8, #1e40af);
+          box-shadow: 0 6px 18px rgba(37,99,235,0.4);
+          transform: translateY(-1px);
+        }
+        .apm-btn-primary:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+          transform: none;
+        }
+        .apm-spinner {
+          width: 15px; height: 15px;
+          border: 2px solid rgba(255,255,255,0.4);
+          border-top-color: #fff;
+          border-radius: 50%;
+          animation: apm-spin 0.6s linear infinite;
+          flex-shrink: 0;
+        }
+        @keyframes apm-spin { to { transform: rotate(360deg); } }
+      `}</style>
+
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
-        style={{ animation: 'slideUp 0.2s ease-out' }}
+        className={`apm-overlay${visible ? ' apm-visible' : ''}`}
+        onClick={(e) => e.target === e.currentTarget && handleClose()}
       >
-        {/* Modal Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        <div className={`apm-card${visible ? ' apm-visible' : ''}`}>
+
+          {/* Header */}
+          <div className="apm-header">
+            <button className="apm-close-btn" onClick={handleClose} aria-label="Close">
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">Add New Patient</h2>
-              <p className="text-xs text-gray-500">Fill in the patient's information below</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition text-gray-400 hover:text-gray-600"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Form */}
-        <div className="p-6 space-y-4">
-          {/* Name row */}
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="First Name" name="firstName" placeholder="John" required />
-            <Field label="Last Name" name="lastName" placeholder="Doe" required />
+            </button>
+            <div className="apm-header-eyebrow">Patient Registry</div>
+            <div className="apm-header-title">New Patient</div>
+            <div className="apm-header-sub">Fill in the patient's information below</div>
           </div>
 
-          {/* DOB + Gender */}
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Date of Birth" name="dob" type="date" required />
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Gender <span className="text-red-500">*</span>
+          {/* Body */}
+          <div className="apm-body">
+
+            <p className="apm-section-title">Personal Information</p>
+            <div className="apm-grid-2">
+              <Field label="First Name" name="firstName" placeholder="John" required />
+              <Field label="Last Name" name="lastName" placeholder="Doe" required />
+            </div>
+            <div className="apm-grid-2" style={{ marginBottom: 0 }}>
+              <Field label="Date of Birth" name="dob" type="date" required />
+              <div className="apm-field-group">
+                <label className="apm-label">Gender <span className="apm-required">*</span></label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className={`apm-select${errors.gender ? ' apm-select-error' : ''}`}
+                >
+                  <option value="">Select…</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                  <option value="prefer_not">Prefer not to say</option>
+                </select>
+                {errors.gender && <p className="apm-error-msg">⚠ {errors.gender}</p>}
+              </div>
+            </div>
+
+            <div className="apm-divider" style={{ marginTop: 22 }} />
+            <p className="apm-section-title">Contact Details</p>
+
+            <div className="apm-grid-1">
+              <Field label="Email Address" name="email" type="email" placeholder="john@example.com" required />
+            </div>
+            <div className="apm-grid-2" style={{ marginBottom: 0 }}>
+              <Field label="Phone Number" name="phone" type="tel" placeholder="+1 (555) 000-0000" required />
+              <Field label="Address" name="address" placeholder="123 Main St, City" />
+            </div>
+
+            <div className="apm-divider" style={{ marginTop: 22 }} />
+            <p className="apm-section-title">Medical Notes</p>
+
+            <div className="apm-field-group" style={{ marginBottom: 4 }}>
+              <label className="apm-label">
+                Condition / Notes <span style={{ color: '#94a3b8', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span>
               </label>
-              <select
-                name="gender"
-                value={formData.gender}
+              <textarea
+                name="condition"
+                value={formData.condition}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
-                  errors.gender ? 'border-red-400 bg-red-50' : 'border-gray-300'
-                }`}
-              >
-                <option value="">Select...</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-                <option value="prefer_not">Prefer not to say</option>
-              </select>
-              {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
+                placeholder="Primary diagnosis or reason for visit..."
+                className="apm-textarea"
+              />
             </div>
+
           </div>
 
-          <Field label="Email Address" name="email" type="email" placeholder="john@example.com" required />
-          <Field label="Phone Number" name="phone" type="tel" placeholder="+1 (555) 000-0000" required />
-          <Field label="Address" name="address" placeholder="123 Main St, City, State" />
-
-          {/* Condition / Notes */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Medical Condition / Notes</label>
-            <textarea
-              name="condition"
-              value={formData.condition}
-              onChange={handleChange}
-              placeholder="Primary diagnosis or reason for visit..."
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
-            />
+          {/* Footer */}
+          <div className="apm-footer">
+            <button className="apm-btn apm-btn-ghost" onClick={handleClose} disabled={saving}>
+              Cancel
+            </button>
+            <button className="apm-btn apm-btn-primary" onClick={handleSubmit} disabled={saving}>
+              {saving ? (
+                <>
+                  <span className="apm-spinner" />
+                  Saving…
+                </>
+              ) : (
+                <>
+                  <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                  </svg>
+                  Register Patient
+                </>
+              )}
+            </button>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="flex gap-3 px-6 pb-6">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={saving}
-            className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm disabled:opacity-60 flex items-center justify-center gap-2"
-          >
-            {saving ? (
-              <>
-                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                </svg>
-                Saving...
-              </>
-            ) : (
-              'Save Patient'
-            )}
-          </button>
         </div>
       </div>
-
-      <style>{`
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px) scale(0.98); }
-          to   { opacity: 1; transform: translateY(0)   scale(1); }
-        }
-      `}</style>
-    </div>
+    </>
   );
 }
 
@@ -334,7 +542,6 @@ function Dashboard() {
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Add Patient — now opens modal */}
             <button
               onClick={() => setShowPatientModal(true)}
               className="flex flex-col items-center justify-center p-6 bg-blue-50 rounded-lg hover:bg-blue-100 transition border-2 border-transparent hover:border-blue-500"
