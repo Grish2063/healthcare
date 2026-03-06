@@ -2,52 +2,216 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
-function AddPatientModal({onClose, onSave}){
+function AddPatientModal({ onClose, onSave }) {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    dob: "",
-    gender: "",
-    phone: "",
-    address: "",
+    firstName: '',
+    lastName: '',
+    dob: '',
+    gender: '',
+    email: '',
+    phone: '',
+    address: '',
+    condition: '',
   });
-
   const [errors, setErrors] = useState({});
-  const [saving,setSaving] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const validate = ()=>{
+  const validate = () => {
     const newErrors = {};
-    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!formData.dob) newErrors.dob = "Date of birth is required";
-    if (!formData.gender) newErrors.gender = "Gender is required";
-    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    if (!formData.dob) newErrors.dob = 'Date of birth is required';
+    if (!formData.gender) newErrors.gender = 'Gender is required';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Enter a valid email';
+    }
+    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
     return newErrors;
+  };
 
-  }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
 
+  const handleSubmit = async () => {
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    setSaving(true);
+    // Simulate async save (replace with your real API call)
+    await new Promise((r) => setTimeout(r, 800));
+    onSave(formData);
+    setSaving(false);
+    onClose();
+  };
+
+  const Field = ({ label, name, type = 'text', placeholder, required }) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={formData[name]}
+        onChange={handleChange}
+        placeholder={placeholder}
+        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+          errors[name] ? 'border-red-400 bg-red-50' : 'border-gray-300'
+        }`}
+      />
+      {errors[name] && <p className="text-red-500 text-xs mt-1">{errors[name]}</p>}
+    </div>
+  );
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(2px)' }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        style={{ animation: 'slideUp 0.2s ease-out' }}
+      >
+        {/* Modal Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Add New Patient</h2>
+              <p className="text-xs text-gray-500">Fill in the patient's information below</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Form */}
+        <div className="p-6 space-y-4">
+          {/* Name row */}
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="First Name" name="firstName" placeholder="John" required />
+            <Field label="Last Name" name="lastName" placeholder="Doe" required />
+          </div>
+
+          {/* DOB + Gender */}
+          <div className="grid grid-cols-2 gap-4">
+            <Field label="Date of Birth" name="dob" type="date" required />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Gender <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+                  errors.gender ? 'border-red-400 bg-red-50' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Select...</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+                <option value="prefer_not">Prefer not to say</option>
+              </select>
+              {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
+            </div>
+          </div>
+
+          <Field label="Email Address" name="email" type="email" placeholder="john@example.com" required />
+          <Field label="Phone Number" name="phone" type="tel" placeholder="+1 (555) 000-0000" required />
+          <Field label="Address" name="address" placeholder="123 Main St, City, State" />
+
+          {/* Condition / Notes */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Medical Condition / Notes</label>
+            <textarea
+              name="condition"
+              value={formData.condition}
+              onChange={handleChange}
+              placeholder="Primary diagnosis or reason for visit..."
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
+            />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex gap-3 px-6 pb-6">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={saving}
+            className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm disabled:opacity-60 flex items-center justify-center gap-2"
+          >
+            {saving ? (
+              <>
+                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                Saving...
+              </>
+            ) : (
+              'Save Patient'
+            )}
+          </button>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px) scale(0.98); }
+          to   { opacity: 1; transform: translateY(0)   scale(1); }
+        }
+      `}</style>
+    </div>
+  );
 }
-
-
 
 function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  const[showAddPatientModal, setShowPatientModal] = useState(false);
+  const [showAddPatientModal, setShowPatientModal] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
+  const handleSavePatient = (data) => {
+    console.log('New patient:', data);
+    // TODO: replace with your real API call, e.g.:
+    // await api.post('/patients', data);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* ADDED: render modal when state is true */}
       {showAddPatientModal && (
         <AddPatientModal
           onClose={() => setShowPatientModal(false)}
-          onSave={(data) => console.log('New patient:', data)} // replace with your API call
+          onSave={handleSavePatient}
         />
       )}
 
@@ -83,7 +247,6 @@ function Dashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {/* Card 1 */}
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -99,7 +262,6 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* Card 2 */}
           <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -115,7 +277,6 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* Card 3 */}
           <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -138,9 +299,7 @@ function Dashboard() {
           <div className="space-y-3">
             <div className="flex items-start gap-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
               <div className="flex-shrink-0 mt-1">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                  JD
-                </div>
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">JD</div>
               </div>
               <div className="flex-1">
                 <p className="text-gray-900 font-semibold">New patient registered</p>
@@ -148,12 +307,9 @@ function Dashboard() {
                 <p className="text-gray-500 text-xs mt-1">2 hours ago</p>
               </div>
             </div>
-
             <div className="flex items-start gap-4 p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
               <div className="flex-shrink-0 mt-1">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                  JS
-                </div>
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">JS</div>
               </div>
               <div className="flex-1">
                 <p className="text-gray-900 font-semibold">Appointment completed</p>
@@ -161,12 +317,9 @@ function Dashboard() {
                 <p className="text-gray-500 text-xs mt-1">4 hours ago</p>
               </div>
             </div>
-
             <div className="flex items-start gap-4 p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500">
               <div className="flex-shrink-0 mt-1">
-                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                  BJ
-                </div>
+                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">BJ</div>
               </div>
               <div className="flex-1">
                 <p className="text-gray-900 font-semibold">Lab results uploaded</p>
@@ -181,7 +334,11 @@ function Dashboard() {
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <button onClick={()=> setShowPatientModal(true)} className="flex flex-col items-center justify-center p-6 bg-blue-50 rounded-lg hover:bg-blue-100 transition border-2 border-transparent hover:border-blue-500">
+            {/* Add Patient — now opens modal */}
+            <button
+              onClick={() => setShowPatientModal(true)}
+              className="flex flex-col items-center justify-center p-6 bg-blue-50 rounded-lg hover:bg-blue-100 transition border-2 border-transparent hover:border-blue-500"
+            >
               <svg className="w-10 h-10 text-blue-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
               </svg>
