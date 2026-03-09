@@ -1,5 +1,4 @@
-function Patient(){
-    
-}
+function Patient (){
 
+}
 export default Patient
