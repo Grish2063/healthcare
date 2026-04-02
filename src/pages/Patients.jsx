@@ -10,6 +10,7 @@ function Patients() {
       <p className = "text-red-400 mt-3">Miya</p>
       <p className = "text-green-400 mt-3.5">Ruby</p>
       <p className = "text-yellow-400 mt-4">Ryan</p>
+      <p className = "text-pink-300 mt-3">Antony</p>
 
     </div>
   );
