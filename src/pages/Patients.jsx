@@ -6,6 +6,7 @@ function Patients() {
       <p className="text-gray-600 mt-4">Joe</p>
       <p className="text-gray-600 mt-4">Sam</p>
       <p className="text-red-500 mt-4">John</p>
+      <p className="text-blue-500 mt-5">Son</p>
       
 
     </div>
