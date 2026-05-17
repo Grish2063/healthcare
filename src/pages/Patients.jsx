@@ -5,7 +5,6 @@ function Patients() {
       <p className="text-gray-600 mt-4">Ram</p>
       <p className="text-blue-500 mt-4">Shyam</p>
       <p className="text-gray-500 mt-3">John</p>
-      <p className="text-red-500 mt-4">Frank</p>
       
 
     </div>
