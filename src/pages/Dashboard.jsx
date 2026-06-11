@@ -14,7 +14,6 @@ function Dashboard() {
     navigate('/login');
   };
 
-  // Replace this with your real API call, e.g. await api.post('/patients', data)
   const handleSavePatient = async (data) => {
     await new Promise((r) => setTimeout(r, 800)); // simulate network
     console.log('New patient:', data);
