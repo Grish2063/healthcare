@@ -3,11 +3,63 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import AddPatientModal from './AddPatientModel';
 
-// ── Dashboard ── //
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function getInitials(firstName, lastName) {
+  return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
+}
+
+function timeAgo(date) {
+  const seconds = Math.floor((Date.now() - date) / 1000);
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days !== 1 ? 's' : ''} ago`;
+}
+
+// ─── Initial activity feed ────────────────────────────────────────────────────
+const INITIAL_ACTIVITIES = [
+  {
+    id: 1,
+    initials: 'JD',
+    color: 'blue',
+    title: 'New patient registered',
+    description: 'John Doe was added to the system',
+    timestamp: Date.now() - 1000 * 60 * 120,
+  },
+  {
+    id: 2,
+    initials: 'JS',
+    color: 'green',
+    title: 'Appointment completed',
+    description: 'Jane Smith - General Checkup',
+    timestamp: Date.now() - 1000 * 60 * 240,
+  },
+  {
+    id: 3,
+    initials: 'BJ',
+    color: 'purple',
+    title: 'Lab results uploaded',
+    description: 'Bob Johnson - Blood Test Results',
+    timestamp: Date.now() - 1000 * 60 * 360,
+  },
+];
+
+const COLOR_CLASSES = {
+  blue:   { bg: 'bg-blue-50',   border: 'border-blue-500',   avatar: 'bg-blue-500'   },
+  green:  { bg: 'bg-green-50',  border: 'border-green-500',  avatar: 'bg-green-500'  },
+  purple: { bg: 'bg-purple-50', border: 'border-purple-500', avatar: 'bg-purple-500' },
+};
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
 function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showAddPatientModal, setShowPatientModal] = useState(false);
+  const [activities, setActivities] = useState(INITIAL_ACTIVITIES);
+  const [totalPatients, setTotalPatients] = useState(30);
 
   const handleLogout = () => {
     logout();
@@ -15,10 +67,20 @@ function Dashboard() {
   };
 
   const handleSavePatient = async (data) => {
-    await new Promise((r) => setTimeout(r, 800)); // simulate network
-    console.log('New patient:', data);
-    // Throw an Error here to test the error state, e.g.:
-    // throw new Error('Network error — please try again');
+    // 🔁 Replace with your real API call, e.g.: await api.post('/patients', data);
+    await new Promise((r) => setTimeout(r, 800));
+
+    const newActivity = {
+      id: Date.now(),
+      initials: getInitials(data.firstName, data.lastName),
+      color: 'blue',
+      title: 'New patient registered',
+      description: `${data.firstName} ${data.lastName} was added to the system`,
+      timestamp: Date.now(),
+    };
+
+    setActivities((prev) => [newActivity, ...prev]);
+    setTotalPatients((prev) => prev + 1);
   };
 
   return (
@@ -66,7 +128,7 @@ function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100 text-sm font-semibold">Total Patients</p>
-                <p className="text-4xl font-bold mt-2">30</p>
+                <p className="text-4xl font-bold mt-2">{totalPatients}</p>
                 <p className="text-blue-100 text-sm mt-2">↑ 12% from last month</p>
               </div>
               <div className="bg-blue-400 bg-opacity-30 rounded-full p-4">
@@ -112,36 +174,26 @@ function Dashboard() {
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">Recent Activity</h3>
           <div className="space-y-3">
-            <div className="flex items-start gap-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-              <div className="flex-shrink-0 mt-1">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">JD</div>
-              </div>
-              <div className="flex-1">
-                <p className="text-gray-900 font-semibold">New patient registered</p>
-                <p className="text-gray-600 text-sm">John Doe was added to the system</p>
-                <p className="text-gray-500 text-xs mt-1">2 hours ago</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
-              <div className="flex-shrink-0 mt-1">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">JS</div>
-              </div>
-              <div className="flex-1">
-                <p className="text-gray-900 font-semibold">Appointment completed</p>
-                <p className="text-gray-600 text-sm">Jane Smith - General Checkup</p>
-                <p className="text-gray-500 text-xs mt-1">4 hours ago</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4 p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500">
-              <div className="flex-shrink-0 mt-1">
-                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">BJ</div>
-              </div>
-              <div className="flex-1">
-                <p className="text-gray-900 font-semibold">Lab results uploaded</p>
-                <p className="text-gray-600 text-sm">Bob Johnson - Blood Test Results</p>
-                <p className="text-gray-500 text-xs mt-1">6 hours ago</p>
-              </div>
-            </div>
+            {activities.map((activity) => {
+              const c = COLOR_CLASSES[activity.color] ?? COLOR_CLASSES.blue;
+              return (
+                <div
+                  key={activity.id}
+                  className={`flex items-start gap-4 p-4 ${c.bg} rounded-lg border-l-4 ${c.border}`}
+                >
+                  <div className="flex-shrink-0 mt-1">
+                    <div className={`w-8 h-8 ${c.avatar} rounded-full flex items-center justify-center text-white text-sm font-bold`}>
+                      {activity.initials}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-gray-900 font-semibold">{activity.title}</p>
+                    <p className="text-gray-600 text-sm">{activity.description}</p>
+                    <p className="text-gray-500 text-xs mt-1">{timeAgo(activity.timestamp)}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
