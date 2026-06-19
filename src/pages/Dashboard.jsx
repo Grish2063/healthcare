@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import AddPatientModal from './AddPatientModel';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 function getInitials(firstName, lastName) {
   return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
 }
@@ -19,7 +19,7 @@ function timeAgo(date) {
   return `${days} day${days !== 1 ? 's' : ''} ago`;
 }
 
-// ─── Initial activity feed ────────────────────────────────────────────────────
+// ─── Initial Recent activity feed ────────
 const INITIAL_ACTIVITIES = [
   {
     id: 1,
@@ -53,7 +53,7 @@ const COLOR_CLASSES = {
   purple: { bg: 'bg-purple-50', border: 'border-purple-500', avatar: 'bg-purple-500' },
 };
 
-// ─── Dashboard ────────────────────────────────────────────────────────────────
+// ─── Dashboard ───//
 function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -67,7 +67,6 @@ function Dashboard() {
   };
 
   const handleSavePatient = async (data) => {
-    // 🔁 Replace with your real API call, e.g.: await api.post('/patients', data);
     await new Promise((r) => setTimeout(r, 800));
 
     const newActivity = {
