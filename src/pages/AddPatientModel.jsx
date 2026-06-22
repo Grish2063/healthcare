@@ -431,7 +431,7 @@ function AddPatientModal({ onClose, onSave }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <div className="apm-eyebrow">Patient Registry</div>
+            <div className="apm-eyebrow">Patient Registration</div>
             <h2 id="apm-title" className="apm-title">New Patient</h2>
             <p id="apm-desc" className="apm-sub">Fill in the patient's information below</p>
           </div>

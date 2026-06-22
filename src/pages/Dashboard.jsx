@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import AddPatientModal from './AddPatientModel';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+// ─── Helpers ──────//
 function getInitials(firstName, lastName) {
   return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
 }
@@ -19,7 +20,7 @@ function timeAgo(date) {
   return `${days} day${days !== 1 ? 's' : ''} ago`;
 }
 
-// ─── Initial activity feed ────────────────────────────────────────────────────
+// ─── Initial recent activity feed ───//
 const INITIAL_ACTIVITIES = [
   {
     id: 1,
