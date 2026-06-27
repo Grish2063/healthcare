@@ -41,3 +41,22 @@ const TYPE_COLOR = {
   gray:   { bg: '#f8fafc', border: '#94a3b8', text: '#475569' },
 };
 
+// Required Fields that needs to be filled
+
+const Required = ['patientId', 'doctorId', 'date', 'timeSlot', 'appointmentType'];
+
+
+// Validation
+function Validate(form){
+    const errors = {};
+    if(!form.patientId) errors.patientId = 'Select a patient';
+    if(!form.doctorId) errors.doctorId = 'Assign a doctor';
+    if(!form.date) errors.date = 'Pick a date';
+    if(!form.timeSlot) errors.timeSlot = 'Choose an available slot';
+    if(!form.appointmentType) errors.appointmentType = 'Select an appointment type';
+    return errors;
+    
+}
+
+
+
