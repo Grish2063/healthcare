@@ -2,7 +2,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import AddPatientModal from './AddPatientModel';
-
+import NewAppointmentModal from './Appointment';
 
 function getInitials(firstName, lastName) {
   return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
@@ -57,9 +57,10 @@ const COLOR_CLASSES = {
 function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [showAddPatientModal, setShowPatientModal] = useState(false);
-  const [activities, setActivities] = useState(INITIAL_ACTIVITIES);
-  const [totalPatients, setTotalPatients] = useState(30);
+  const [showAddPatientModal, setShowPatientModal]         = useState(false);
+  const [showAppointmentModal, setShowAppointmentModal]   = useState(false);
+  const [activities, setActivities]                       = useState(INITIAL_ACTIVITIES);
+  const [totalPatients, setTotalPatients]                 = useState(30);
 
   const handleLogout = () => {
     logout();
@@ -82,12 +83,34 @@ function Dashboard() {
     setTotalPatients((prev) => prev + 1);
   };
 
+  const handleSaveAppointment = async (data) => {
+    await new Promise((r) => setTimeout(r, 800));
+
+    const newActivity = {
+      id: Date.now(),
+      initials: 'AP',
+      color: 'green',
+      title: 'New appointment booked',
+      description: `Appointment scheduled for ${data.date} at ${data.timeSlot}`,
+      timestamp: Date.now(),
+    };
+
+    setActivities((prev) => [newActivity, ...prev]);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {showAddPatientModal && (
         <AddPatientModal
           onClose={() => setShowPatientModal(false)}
           onSave={handleSavePatient}
+        />
+      )}
+
+      {showAppointmentModal && (
+        <NewAppointmentModal
+          onClose={() => setShowAppointmentModal(false)}
+          onSave={handleSaveAppointment}
         />
       )}
 
@@ -210,7 +233,10 @@ function Dashboard() {
               <span className="font-semibold text-gray-900">Add Patient</span>
             </button>
 
-            <button className="flex flex-col items-center justify-center p-6 bg-green-50 rounded-lg hover:bg-green-100 transition border-2 border-transparent hover:border-green-500">
+            <button
+              onClick={() => setShowAppointmentModal(true)}
+              className="flex flex-col items-center justify-center p-6 bg-green-50 rounded-lg hover:bg-green-100 transition border-2 border-transparent hover:border-green-500"
+            >
               <svg className="w-10 h-10 text-green-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>

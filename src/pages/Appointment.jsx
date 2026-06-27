@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import NewAppointmentModal from '../../../../Downloads/NewAppointmentModal';
 
 const Appointment_Types =[
     {value: 'checkup', label:'Checkup', color: 'blue'   },
@@ -57,6 +58,7 @@ function Validate(form){
     return errors;
     
 }
+export default NewAppointmentModal;
 
 
 
