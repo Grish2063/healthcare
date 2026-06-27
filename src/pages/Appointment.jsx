@@ -11,3 +11,7 @@ const Appointment_Types =[
 
 const Durations = ['15 minutes', '30 minutes', '45 minutes', '1 hr', '1.5hr', '2hr'];
 
+const Priority_Options = [
+    {value: 'routine',label: 'Routine', className: 'nam-pill-routine' }
+]
+
