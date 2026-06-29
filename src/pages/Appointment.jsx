@@ -47,7 +47,7 @@ const TYPE_COLOR = {
 const Required = ['patientId', 'doctorId', 'date', 'timeSlot', 'appointmentType'];
 
 
-// Validation
+// Validation of form
 function Validate(form){
     const errors = {};
     if(!form.patientId) errors.patientId = 'Select a patient';
