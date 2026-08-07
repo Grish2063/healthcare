@@ -47,7 +47,7 @@ function validate(formData) {
   return errors;
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
+// ─── Styles ── //
 const styles = {
   label: {
     fontSize: 11,
