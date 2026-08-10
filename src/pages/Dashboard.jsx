@@ -2,7 +2,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState, useCallback } from 'react';
 import AddPatientModal from './AddPatientModel';
-import NewAppointmentModal from './Appointment';
+import NewAppointmentModal from './NewAppointmentModal';
 
 // ─── Helpers ─── //
 function getInitials(firstName, lastName) {
