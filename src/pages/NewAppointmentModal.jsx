@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-// ─── Field config ──────────────────────────────────────────────────────────
+// ─── Field config ───//
 const REQUIRED_FIELDS = ['patientName', 'doctor', 'date', 'timeSlot', 'reason'];
 
 const TIME_SLOTS = [
