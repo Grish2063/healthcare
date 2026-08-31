@@ -21,7 +21,7 @@ function timeAgo(date) {
   return `${days} day${days !== 1 ? 's' : ''} ago`;
 }
 
-// ─── Static data / config ──────────────────────────────
+// ─── Static data config ─── //
 const INITIAL_ACTIVITIES = [
   {
     id: 1,
