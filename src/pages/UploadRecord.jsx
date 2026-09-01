@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-// ─── Config ──────────────────────────────────────────────────────────────
+// ─── Config ── //
 const MAX_FILE_SIZE_MB = 10;
 const ACCEPTED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 const ACCEPTED_EXT = '.pdf,.jpg,.jpeg,.png';
