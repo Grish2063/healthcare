@@ -55,7 +55,7 @@ const COLOR_CLASSES = {
   purple: { bg: 'bg-purple-50', border: 'border-purple-500', avatar: 'bg-purple-500' },
 };
 
-// ─── Small presentational components ───────────────────
+// ─── Small presentational components ─── //
 function StatCard({ label, value, subtext, gradient, iconPath }) {
   return (
     <div className={`bg-gradient-to-br ${gradient} text-white rounded-lg shadow-lg p-6`}>
