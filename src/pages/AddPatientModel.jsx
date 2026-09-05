@@ -319,12 +319,7 @@ const EMPTY_FORM = {
   condition: '',
 };
 
-// ─── AddPatientModal ──────────────────────────────────────────────────────────
-/**
- * Props:
- *  - onClose: () => void        — called when the modal should unmount
- *  - onSave:  (data) => Promise — receives form data; throw to show an API error
- */
+// ─── AddPatientModal ─── //
 function AddPatientModal({ onClose, onSave }) {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
