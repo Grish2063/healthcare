@@ -112,7 +112,7 @@ function QuickActionButton({ label, iconPath, colorClass, onClick, disabled }) {
   );
 }
 
-// ─── Dashboard ──────────────────────────────────────────
+// ── Dashboard ── //
 function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
