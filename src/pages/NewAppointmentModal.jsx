@@ -339,7 +339,7 @@ const modalStyles = `
   }
 `;
 
-// ─── Empty form state ──────────────────────────────────────────────────────
+// ─── Empty form state ─── //
 const EMPTY_FORM = {
   patientName: '',
   doctor: '',
@@ -349,12 +349,7 @@ const EMPTY_FORM = {
   reason: '',
 };
 
-// ─── NewAppointmentModal ────────────────────────────────────────────────────
-/**
- * Props:
- *  - onClose: () => void        — called when the modal should unmount
- *  - onSave:  (data) => Promise — receives form data; throw to show an API error
- */
+// ─── NewAppointmentModal ── //
 function NewAppointmentModal({ onClose, onSave }) {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
