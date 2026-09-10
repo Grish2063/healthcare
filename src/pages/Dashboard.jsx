@@ -4,7 +4,6 @@ import { useState, useCallback } from 'react';
 import AddPatientModal from './AddPatientModel';
 import NewAppointmentModal from './NewAppointmentModal';
 import UploadRecord from './UploadRecord';
-
 // ─── Helpers ─── //
 function getInitials(firstName, lastName) {
   return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
@@ -120,6 +119,7 @@ function Dashboard() {
 
   const [showAddPatientModal, setShowAddPatientModal] = useState(false);
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [showUploadRecordModal, setShowUploadRecordModal] = useState(false);
   const [activities, setActivities] = useState(INITIAL_ACTIVITIES);
   const [totalPatients, setTotalPatients] = useState(30);
   const [appointmentsToday, setAppointmentsToday] = useState(12);
@@ -185,6 +185,33 @@ function Dashboard() {
     }
   }, []);
 
+  const handleSaveUpload = useCallback(async (data) =>{
+    setSaveError(null);
+    try{
+      await new Promise((resolve, reject) =>{
+        setTimeout(() =>{
+          data ? resolve(): reject(new Error("Missing upload data"));
+        },800);
+      });
+      const newActivity = {
+        id : Date.now(),
+        initials : 'UP',
+        color : 'purple',
+        title: 'Lab reports uploaded',
+        description: data?.fileName ? `${data.fileName} was uploaded` : 'A new record was uploaded',
+        timestamp: Date.now(),
+      };
+
+      setActivities((prev) =>[newActivity, ...prev]);
+      setShowUploadRecordModal(false);
+    }
+    catch (err){
+      setSaveError("Could not upload record. Please try again.")
+      throw err;
+    }
+
+  },[]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {showAddPatientModal && (
@@ -198,6 +225,13 @@ function Dashboard() {
         <NewAppointmentModal
           onClose={() => setShowAppointmentModal(false)}
           onSave={handleSaveAppointment}
+        />
+      )}
+
+      {showUploadRecordModal &&(
+        <UploadRecord
+          onClose={() => setShowUploadRecordModal(false)}
+          onSave={handleSaveUpload}
         />
       )}
 
@@ -294,6 +328,7 @@ function Dashboard() {
             />
             <QuickActionButton
               label="Upload Records"
+              onClick={() => setShowUploadRecordModal(true)}
               iconPath="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               colorClass={{ bg: 'bg-purple-50', text: 'text-purple-600', hoverBg: 'hover:bg-purple-100', hoverBorder: 'border-purple-500' }}
             />
