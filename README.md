@@ -1,16 +1,84 @@
-# React + Vite
+# Healthcare Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based healthcare management dashboard for handling patients, appointments, and medical records — built with React, Vite, and Tailwind CSS.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Dashboard Overview** — at-a-glance stats for total patients, today's appointments, and pending tasks
+- **Patient Management** — add new patients via a modal form, with activity logged automatically
+- **Appointment Scheduling** — book new appointments and track them on the dashboard
+- **Record Uploads** — upload and attach medical records to patient profiles
+- **Recent Activity Feed** — a live-updating log of registrations, completed appointments, and uploads
+- **Authentication** — protected dashboard routes with login/logout via context-based auth
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React** — component-based UI
+- **Vite** — build tool and dev server
+- **React Router** — client-side routing
+- **Tailwind CSS** — utility-first styling
+- **ESLint** — code linting
 
-## Expanding the ESLint configuration
+## Project Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+healthcare/
+├── public/              # Static assets
+├── src/
+│   ├── components/      # Dashboard, modals (AddPatient, NewAppointment, UploadRecord), etc.
+│   ├── context/          # AuthContext and other React context providers
+│   └── ...
+├── index.html
+├── package.json
+├── vite.config.js
+└── eslint.config.js
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (LTS recommended)
+- npm
+
+### Installation
+
+```bash
+git clone https://github.com/Grish2063/healthcare.git
+cd healthcare
+npm install
+```
+
+### Running Locally
+
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173` (default Vite port).
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+### Linting
+
+```bash
+npm run lint
+```
+
+## Roadmap
+
+- [ ] Reports view (currently disabled on the dashboard)
+- [ ] Persist data to a backend/database instead of local state
+- [ ] Expand patient and appointment detail views
+
+## Contributing
+
+Contributions, issues, and feature requests are welcome. Feel free to open a pull request or file an issue.
+
+## License
+
+No license specified yet.
