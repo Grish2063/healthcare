@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import AddPatientModal from './AddPatientModel';
 import NewAppointmentModal from './NewAppointmentModal';
 import UploadRecord from './UploadRecord';
+import ViewReports from './ViewReports';
 // ─── Helpers ─── //
 function getInitials(firstName, lastName) {
   return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
@@ -48,10 +49,12 @@ const INITIAL_ACTIVITIES = [
   },
 ];
 
+// FIX 1: added 'orange' entry so 'Lab reports viewed' activities render correctly
 const COLOR_CLASSES = {
   blue:   { bg: 'bg-blue-50',   border: 'border-blue-500',   avatar: 'bg-blue-500'   },
   green:  { bg: 'bg-green-50',  border: 'border-green-500',  avatar: 'bg-green-500'  },
   purple: { bg: 'bg-purple-50', border: 'border-purple-500', avatar: 'bg-purple-500' },
+  orange: { bg: 'bg-orange-50', border: 'border-orange-500', avatar: 'bg-orange-500' },
 };
 
 // ─── Small presentational components ─── //
@@ -120,6 +123,7 @@ function Dashboard() {
   const [showAddPatientModal, setShowAddPatientModal] = useState(false);
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const [showUploadRecordModal, setShowUploadRecordModal] = useState(false);
+  const [showViewReportModal, setShowViewReportModal] = useState(false);
   const [activities, setActivities] = useState(INITIAL_ACTIVITIES);
   const [totalPatients, setTotalPatients] = useState(30);
   const [appointmentsToday, setAppointmentsToday] = useState(12);
@@ -185,32 +189,63 @@ function Dashboard() {
     }
   }, []);
 
-  const handleSaveUpload = useCallback(async (data) =>{
+  // FIX 4: normalized spacing to match handleSavePatient / handleSaveAppointment above
+  const handleSaveUpload = useCallback(async (data) => {
     setSaveError(null);
-    try{
-      await new Promise((resolve, reject) =>{
-        setTimeout(() =>{
-          data ? resolve(): reject(new Error("Missing upload data"));
-        },800);
+    try {
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          data ? resolve() : reject(new Error('Missing upload data'));
+        }, 800);
       });
+
       const newActivity = {
-        id : Date.now(),
-        initials : 'UP',
-        color : 'purple',
+        id: Date.now(),
+        initials: 'UP',
+        color: 'purple',
         title: 'Lab reports uploaded',
         description: data?.fileName ? `${data.fileName} was uploaded` : 'A new record was uploaded',
         timestamp: Date.now(),
       };
 
-      setActivities((prev) =>[newActivity, ...prev]);
+      setActivities((prev) => [newActivity, ...prev]);
       setShowUploadRecordModal(false);
-    }
-    catch (err){
-      setSaveError("Could not upload record. Please try again.")
+    } catch (err) {
+      setSaveError('Could not upload record. Please try again.');
       throw err;
     }
+  }, []);
 
-  },[]);
+  // FIX 3: removed stray space in `data?. fileName` -> `data?.fileName`
+  // NOTE (issue #2 from before): this handler only runs if ViewReports actually
+  // calls onSave(...) internally — e.g. after a "View" or "Download" action.
+  // If ViewReports is purely read-only with no save/confirm step, either add
+  // an onSave call inside it, or remove this handler and log activity there instead.
+  const handleSaveReport = useCallback(async (data) => {
+    setSaveError(null);
+    try {
+      await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          data ? resolve() : reject(new Error('Missing uploaded reports'));
+        }, 800);
+      });
+
+      const newActivity = {
+        id: Date.now(),
+        initials: 'UP',
+        color: 'orange',
+        title: 'Lab reports viewed successfully',
+        description: data?.fileName ? `${data.fileName} was viewed` : 'Reports were viewed',
+        timestamp: Date.now(),
+      };
+
+      setActivities((prev) => [newActivity, ...prev]);
+      setShowViewReportModal(false);
+    } catch (err) {
+      setSaveError('Could not fetch report. Please try again.');
+      throw err;
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -228,10 +263,17 @@ function Dashboard() {
         />
       )}
 
-      {showUploadRecordModal &&(
+      {showUploadRecordModal && (
         <UploadRecord
           onClose={() => setShowUploadRecordModal(false)}
           onSave={handleSaveUpload}
+        />
+      )}
+
+      {showViewReportModal && (
+        <ViewReports
+          onClose={() => setShowViewReportModal(false)}
+          onSave={handleSaveReport}
         />
       )}
 
@@ -334,6 +376,7 @@ function Dashboard() {
             />
             <QuickActionButton
               label="View Reports"
+              onClick={() => setShowViewReportModal(true)}
               iconPath="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
               colorClass={{ bg: 'bg-orange-50', text: 'text-orange-600', hoverBg: 'hover:bg-orange-100', hoverBorder: 'border-orange-500' }}
             />
