@@ -47,7 +47,11 @@ function formatDate(dateStr) {
   });
 }
 
+<<<<<<< HEAD
 // ─── Report row ─── //
+=======
+// ─── Report row ── //
+>>>>>>> b6affa313b113441e128665b71f58705a7e218fa
 function ReportRow({ report, onView, onDownload }) {
   return (
     <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
