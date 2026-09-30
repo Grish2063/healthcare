@@ -8,9 +8,9 @@ const ACCEPTED_EXT = '.pdf,.jpg,.jpeg,.png';
 const RECORD_TYPES = ['Lab result', 'Scan / imaging', 'Prescription', 'Referral letter', 'Other'];
 
 const PATIENTS = [
-  'John Doe',
-  'Jane Smith',
-  'Bob Johnson',
+  'Kritika Shakya',
+  'Season Maharjan',
+  'Sagun Shakya',
 ];
 
 function formatSize(bytes) {

@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 
-// ─── Static / mock data — replace with real API data ─────────────
 const REPORT_CATEGORIES = ['All', 'Patients', 'Appointments', 'Lab Results'];
 
 const MOCK_REPORTS = [
@@ -48,7 +47,7 @@ function formatDate(dateStr) {
   });
 }
 
-// ─── Report row ─────────────────────────────────────────
+// ─── Report row ─── //
 function ReportRow({ report, onView, onDownload }) {
   return (
     <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
@@ -84,7 +83,7 @@ function ReportRow({ report, onView, onDownload }) {
   );
 }
 
-// ─── ViewReportsModal ───────────────────────────────────
+// ─── ViewReportsModal ─── //
 function ViewReportsModal({ onClose, reports = MOCK_REPORTS }) {
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -94,12 +93,10 @@ function ViewReportsModal({ onClose, reports = MOCK_REPORTS }) {
   }, [reports, activeCategory]);
 
   const handleView = (report) => {
-    // TODO: hook up to a real report viewer / detail route
     console.log('Viewing report:', report);
   };
 
   const handleDownload = (report) => {
-    // TODO: hook up to a real export/download endpoint
     console.log('Downloading report:', report);
   };
 
